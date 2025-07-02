@@ -242,6 +242,9 @@ const Login = ({ setActivePage }) => {
               Forgot password?
             </a>
           </div>
+           <div>
+            Don't have an Account? <span className="text-blue-300 hover:text-blue-700 cursor-pointer" onClick={() => setActivePage("register")}>Create Account</span>
+          </div>
           <div className="text-red-500 text-center mb-4">{error}</div>
           <button
             type="submit"
