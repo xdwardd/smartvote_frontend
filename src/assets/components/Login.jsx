@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import Webcam from "react-webcam";
 import * as faceapi from "face-api.js";
 
-const Login = ({ setActivePage }) => {
+const Login = ({ setActivePage, setName }) => {
   const [data, setData] = useState({ student_id: "", password: "" });
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
@@ -136,14 +136,14 @@ const Login = ({ setActivePage }) => {
     if (recognized.size > 0) {
       const user = facedb.find((user) => recognized.has(user.firstname));
       if (user) {
-        setRecognized(new Set());
-        setOpenCam(false); // auto-close cam
+       setRecognized(new Set());
         setLoadingRedirect(true); // show loading indicator
  
         setTimeout(() => {
-            setName(user.firstname);
-            setActivePage("dashboard");
+          setOpenCam(false); // auto-close cam
 
+          setName(user.firstname + " " + user.lastname);
+          setActivePage("dashboard");
         }, 5000);
       } else {
         setStatus("Face not recognized. Please try again.");
