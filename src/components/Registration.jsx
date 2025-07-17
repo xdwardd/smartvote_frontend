@@ -1,6 +1,8 @@
 import React, {useState, useEffect, useRef} from 'react'
 import Webcam from "react-webcam";
 import * as faceapi from "face-api.js";
+import testStudentdata from '../testdata.js';
+
 const Registration = ({setActivePage}) => {
 
     const webcamRef = useRef(null);
@@ -24,14 +26,38 @@ const Registration = ({setActivePage}) => {
         }));
     }
 
-    const registerface = () => {
-        if(!loginData.student_id || !loginData.firstname || !loginData.lastname || !loginData.email || !loginData.password) {
-            setError("Please fill all fields.");
-            return;
-        } else {
-            setOpen(true)
-        }
+
+
+const registerface = () => {
+
+  
+    if (
+        !loginData.student_id || 
+        !loginData.firstname || 
+        !loginData.lastname || 
+        !loginData.email || 
+        !loginData.password
+    ) {
+        setError("Please fill all fields.");
+         return;
     }
+
+    const existingStudents = testStudentdata.getStudents();
+    
+    const studentExists = existingStudents.some(
+        student => student.student_id === loginData.student_id
+    );
+
+
+    if (!studentExists) {
+        setError("Student not found in database.");
+         return;
+    }
+
+    // Everything is valid
+    setOpen(true);
+};
+
 
     const [open, setOpen] = useState(false);
 
@@ -168,7 +194,7 @@ const Registration = ({setActivePage}) => {
       )
   }
 
-  const facedb = JSON.parse(localStorage.getItem("face-db")) || [];
+ const facedb = JSON.parse(localStorage.getItem("face-db")) || [];
  const handleRegister = () => {
     if(facedb.length === 0) {
         setError("Please register your face first.");
@@ -188,7 +214,7 @@ const Registration = ({setActivePage}) => {
         <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
           Resgister
         </h2>
-        <form action="#" method="POST">
+        <form>
           <div className="mb-4">
             <label htmlFor="student_id" className="block text-gray-700 mb-2">
               Student Id
@@ -263,14 +289,14 @@ const Registration = ({setActivePage}) => {
             <p>{error}</p>
           </div>
           <button
-            type="submit"
+            // type="submit"
             className="w-full bg-gray-500 mb-20 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200"
             onClick={registerface}
           >
             Register Face
           </button>
           <button
-            type="submit"
+            // type="submit"
             className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200"
             onClick={handleRegister}
           >

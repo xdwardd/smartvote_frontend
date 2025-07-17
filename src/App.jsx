@@ -1,9 +1,10 @@
 import React, { use, useState } from "react";
 import Register from "./Register";
 import Recognition from "./Recognition";
-import Dashboard from "./assets/components/Dashboard";
-import Login from "./assets/components/Login";
-import Registration from "./assets/components/Registration";
+import Dashboard from "./components/Dashboard";
+import Login from "./components/Login";
+import Registration from "./components/Registration";
+import AdminDashboard from "./components/AdminDashboard";
 
 const App = () => {
   // const [page, setPage] = useState("register");
@@ -35,6 +36,10 @@ const App = () => {
   switch (activePage) {
     case "dashboard":
       content = <Dashboard setActivePage={setActivePage} name={name}/>;
+      break;
+
+    case "admin_dashboard":
+      content = <AdminDashboard setActivePage={setActivePage} name={name}/>;
       break;
 
     case "login":

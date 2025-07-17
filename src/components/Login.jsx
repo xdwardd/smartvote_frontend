@@ -1,17 +1,21 @@
 import React, { useEffect, useState, useRef } from "react";
 import Webcam from "react-webcam";
 import * as faceapi from "face-api.js";
+import testStudentdata from '../testdata.js';
+
+
 
 const Login = ({ setActivePage, setName }) => {
   const [data, setData] = useState({ student_id: "", password: "" });
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   const [status, setStatus] = useState("Loading models...");
-  const [recognized, setRecognized] = useState(new Set());
   const [isModelsReady, setIsModelsReady] = useState(false);
-  const [labeledDescriptors, setLabeledDescriptors] = useState([]);
   const [openCam, setOpenCam] = useState(false);
   const [error, setError] = useState("");
+  const [loadingRedirect, setLoadingRedirect] = useState(false);
+  const [loginUser, setLoginUser] = useState(null); // <- holds the user after credentials match
+  const [isFaceMatched, setIsFaceMatched] = useState(false);
 
   const facedb = JSON.parse(localStorage.getItem("face-db")) || [];
 
@@ -25,6 +29,18 @@ const Login = ({ setActivePage, setName }) => {
 
   const handleLogin = (event) => {
     event.preventDefault();
+
+    // admin credentials
+    const admin = testStudentdata.getAdmin();
+    const isAdmin = admin.some(
+      (a) => a.admin_id === data.student_id && a.password === data.password)
+
+    if(isAdmin){
+      setActivePage("admin_dashboard");
+    
+    }
+      
+
     if (facedb.length === 0) {
       setError("Please register your face first.");
       return;
@@ -33,12 +49,15 @@ const Login = ({ setActivePage, setName }) => {
       setError("Please fill all fields.");
       return;
     }
+
     const user = facedb.find(
       (user) =>
         user.student_id === data.student_id && user.password === data.password
     );
+
     if (user) {
       setError("");
+      setLoginUser(user); // Save login user
       setOpenCam(true);
     } else {
       setError("Invalid credentials. Please try again.");
@@ -63,29 +82,17 @@ const Login = ({ setActivePage, setName }) => {
     loadModels();
   }, []);
 
+  // Run face verification only for the logged-in user's descriptor
   useEffect(() => {
-    const prepareDescriptors = async () => {
-      const data = JSON.parse(localStorage.getItem("face-db")) || [];
-      const map = new Map();
-      for (const item of data) {
-        const desc = new Float32Array(item.descriptor);
-        if (!map.has(item.firstname)) map.set(item.firstname, []);
-        map.get(item.firstname).push(desc);
-      }
-      const labeled = Array.from(map.entries()).map(
-        ([firstname, descriptors]) =>
-          new faceapi.LabeledFaceDescriptors(firstname, descriptors)
-      );
-      setLabeledDescriptors(labeled);
-    };
+    if (!isModelsReady || !loginUser || !loginUser.descriptor) return;
 
-    if (isModelsReady) {
-      prepareDescriptors();
-    }
-  }, [isModelsReady]);
+    const targetDescriptor = new Float32Array(loginUser.descriptor);
+    const labeledDescriptor = new faceapi.LabeledFaceDescriptors(
+      loginUser.student_id,
+      [targetDescriptor]
+    );
 
-  useEffect(() => {
-    if (!isModelsReady || labeledDescriptors.length === 0) return;
+    const matcher = new faceapi.FaceMatcher([labeledDescriptor], 0.6);
 
     const interval = setInterval(async () => {
       if (
@@ -109,8 +116,6 @@ const Login = ({ setActivePage, setName }) => {
         const ctx = canvasRef.current.getContext("2d");
         ctx.clearRect(0, 0, dims.width, dims.height);
 
-        const matcher = new faceapi.FaceMatcher(labeledDescriptors, 0.6);
-
         resized.forEach((det) => {
           const match = matcher.findBestMatch(det.descriptor);
           const { box } = det.detection;
@@ -120,78 +125,70 @@ const Login = ({ setActivePage, setName }) => {
           });
           drawBox.draw(canvasRef.current);
 
-          if (match.label !== "unknown") {
-            setRecognized((prev) => new Set(prev).add(match.label));
+          if (match.label === loginUser.student_id) {
+            setIsFaceMatched(true);
           }
         });
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isModelsReady, labeledDescriptors]);
+  }, [isModelsReady, loginUser]);
 
-  const [loadingRedirect, setLoadingRedirect] = useState(false);
-
+  // Handle successful face match
   useEffect(() => {
-    if (recognized.size > 0) {
-      const user = facedb.find((user) => recognized.has(user.firstname));
-      if (user) {
-       setRecognized(new Set());
-        setLoadingRedirect(true); // show loading indicator
- 
-        setTimeout(() => {
-          setOpenCam(false); // auto-close cam
-
-          setName(user.firstname + " " + user.lastname);
-          setActivePage("dashboard");
-        }, 5000);
-      } else {
-        setStatus("Face not recognized. Please try again.");
-      }
+    if (isFaceMatched && loginUser) {
+      setLoadingRedirect(true);
+      setTimeout(() => {
+        setOpenCam(false);
+        setName(loginUser.firstname + " " + loginUser.lastname);
+        setActivePage("dashboard");
+      }, 5000);
     }
-  }, [recognized ]);
+  }, [isFaceMatched]);
+
+  // === RENDER ===
 
   if (openCam) {
     return (
-        <>
-          {loadingRedirect && (
-        <div className="flex flex-col items-center mt-4">
+      <>
+        {loadingRedirect && (
+          <div className="flex flex-col items-center mt-4">
             <div className="w-6 h-6 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
             <p className="mt-2 text-blue-600 font-medium">Redirecting to dashboard...</p>
-        </div>
+          </div>
         )}
 
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
-        <h1 className="text-2xl font-bold mb-4">Face Recognition</h1>
-        <p className="text-blue-600 mb-2">{status}</p>
-        <div className="relative w-[640px] h-[480px]">
-          {isModelsReady ? (
-            <>
-              <Webcam
-                ref={webcamRef}
-                audio={false}
-                width={640}
-                height={480}
-                screenshotFormat="image/jpeg"
-                videoConstraints={{ facingMode: "user" }}
-                className="rounded"
-              />
-              <canvas
-                ref={canvasRef}
-                width={640}
-                height={480}
-                className="absolute top-0 left-0 z-10"
-              />
-            </>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded">
-              <span className="text-gray-500">Loading webcam...</span>
-            </div>
-          )}
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
+          <h1 className="text-2xl font-bold mb-4">Face Recognition</h1>
+          <p className="text-blue-600 mb-2">{status}</p>
+          <div className="relative w-[640px] h-[480px]">
+            {isModelsReady ? (
+              <>
+                <Webcam
+                  ref={webcamRef}
+                  audio={false}
+                  width={640}
+                  height={480}
+                  screenshotFormat="image/jpeg"
+                  videoConstraints={{ facingMode: "user" }}
+                  className="rounded"
+                />
+                <canvas
+                  ref={canvasRef}
+                  width={640}
+                  height={480}
+                  className="absolute top-0 left-0 z-10"
+                />
+              </>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-200 rounded">
+                <span className="text-gray-500">Loading webcam...</span>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-        </>
-      
+      </>
     );
   }
 
@@ -204,7 +201,7 @@ const Login = ({ setActivePage, setName }) => {
         <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label htmlFor="student_id" className="block text-gray-700 mb-2">
-              Student Id
+              Student ID
             </label>
             <input
               type="text"
@@ -230,21 +227,6 @@ const Login = ({ setActivePage, setName }) => {
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="flex items-center justify-between mb-6">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                className="form-checkbox text-blue-500"
-              />
-              <span className="ml-2 text-gray-700 text-sm">Remember me</span>
-            </label>
-            <a href="#" className="text-sm text-blue-500 hover:underline">
-              Forgot password?
-            </a>
-          </div>
-           <div>
-            Don't have an Account? <span className="text-blue-300 hover:text-blue-700 cursor-pointer" onClick={() => setActivePage("register")}>Create Account</span>
-          </div>
           <div className="text-red-500 text-center mb-4">{error}</div>
           <button
             type="submit"
@@ -253,6 +235,15 @@ const Login = ({ setActivePage, setName }) => {
             Login
           </button>
         </form>
+        <div className="text-sm text-center mt-4">
+          Don't have an Account?{" "}
+          <span
+            className="text-blue-400 hover:text-blue-700 cursor-pointer"
+            onClick={() => setActivePage("register")}
+          >
+            Create Account
+          </span>
+        </div>
       </div>
     </div>
   );
