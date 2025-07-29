@@ -1,65 +1,38 @@
-import React, { use, useState } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Register from "./Register";
-import Recognition from "./Recognition";
-import Dashboard from "./components/Dashboard";
-import Login from "./components/Login";
-import Registration from "./components/Registration";
-import AdminDashboard from "./components/AdminDashboard";
+import Homepage from "./pages/Homepage";
+import Sidebar from "./Sidebar";
+import UserDashboard from "./pages/UserDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import CandidateForm from "./components/CandidatesForm";
+import Candidates from "./pages/Candidates";
+import PendingApplication from "./pages/PendingApplication";
 
 const App = () => {
-  // const [page, setPage] = useState("register");
+  const location = useLocation();
 
-  // return (
-  //   <div>
-  //     <nav className="flex justify-center gap-4 p-4 bg-gray-200">
-  //       <button
-  //         onClick={() => setPage("register")}
-  //         className="px-4 py-2 bg-blue-500 text-white rounded"
-  //       >
-  //         Register
-  //       </button>
-  //       <button
-  //         onClick={() => setPage("recognition")}
-  //         className="px-4 py-2 bg-green-500 text-white rounded"
-  //       >
-  //         Recognize
-  //       </button>
-  //     </nav>
+  // Check if the current route is homepage
+  const isHomepage = location.pathname === "/";
 
-  //     {page === "register" ? <Register /> : <Recognition />}
-  //   </div>
-  // );
+  return (
+    <div className="flex flex-rown m-h-screen lg:h-screen">
+      {/* Only show Sidebar if not on homepage */}
+      {!isHomepage && <Sidebar />}
 
-    const [activePage, setActivePage] = useState("login");
-   const [name, setName] = useState("");
-  let content = null;
-  switch (activePage) {
-    case "dashboard":
-      content = <Dashboard setActivePage={setActivePage} name={name}/>;
-      break;
+      <div className={`flex-1 ${isHomepage ? "w-full" : ""}`}>
+        <Routes>
+          <Route path="/" element={<Homepage />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/user-dashboard" element={<UserDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/filecandidacy" element={<CandidateForm />} />
+          <Route path="/candidates" element={<Candidates />} />
+          <Route path="/pending-application" element={<PendingApplication />} />
 
-    case "admin_dashboard":
-      content = <AdminDashboard setActivePage={setActivePage} name={name}/>;
-      break;
-
-    case "login":
-      content = <Login setActivePage={setActivePage} setName={setName}/>;
-      break;
-
-    case "register":
-      content = <Registration setActivePage={setActivePage}/>;
-      break;
-
-    default:
-      break;
-  }
-
-   return (
-  
-      <>
-        {content}
-      </>
-   
+          {/* Add more routes here */}
+        </Routes>
+      </div>
+    </div>
   );
 };
 

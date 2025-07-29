@@ -1,4 +1,4 @@
- /****  Code History Piste na Voting System Dashboard
+/****  Code History Piste na Voting System Dashboard
 * New = N001
 
 * -------------------------------------------------------------
@@ -7,12 +7,19 @@
 * N001 |    Sakamote_dev   | 07/21/2025    | Create Code
 * N002 |    joshua-amaw    |               | 
  
- ****/ 
-
+ ****/
 
 /*N001 Start*/
 import React from "react";
-import { FaUserGraduate, FaUserTie, FaCheckCircle, FaClipboardList, FaSignOutAlt, FaUserCircle } from "react-icons/fa";
+import {
+  FaUserGraduate,
+  FaUserTie,
+  FaCheckCircle,
+  FaClipboardList,
+  FaSignOutAlt,
+  FaUserCircle,
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import {
   LineChart,
   Line,
@@ -25,9 +32,8 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend
+  Legend,
 } from "recharts";
-import Sidebar from "../Sidebar";
 
 const lineData = [
   { name: "Mon", votes: 200 },
@@ -52,11 +58,9 @@ const pieData = [
 const COLORS = ["#34d399", "#f87171"];
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   return (
-    <div className="flex m-h-screen">
-      {/* Sidebar */}
-    
-      {/* <Sidebar/> */}
+    <div className="flex justify-center m-h-screen">
       {/* Main Content */}
       <div className="flex-1 bg-base-100 p-6">
         <h1 className="text-2xl font-bold mb-6">Voting System Dashboard</h1>
@@ -94,7 +98,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Charts Section */}
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="bg-base-200 p-4 rounded-box shadow">
             <h2 className="text-lg font-semibold mb-4">Voting Over Days</h2>
@@ -131,7 +134,10 @@ export default function AdminDashboard() {
                 label
               >
                 {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip />
