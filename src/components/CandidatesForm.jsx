@@ -20,8 +20,10 @@ export default function CandidateForm({ enabled }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: userData.firstname + " " + userData.lastname,
+    firstname:userData.firstname,
+    lastname:userData.lastname,
     email: userData.email,
+    course: userData.course,
     position: "",
     advocacy: "",
   });
@@ -69,7 +71,7 @@ export default function CandidateForm({ enabled }) {
 
       console.log(response.data);
     } catch (error) {
-      console.error("Error fetching filing status:", error);
+      // console.error("Error fetching filing status:", error);
       alert("An error occurred while fetching the filing status.");
     }
   };
@@ -106,12 +108,23 @@ export default function CandidateForm({ enabled }) {
             <div className="text-2xl font-bold">File Candidacy</div>
             <form className="bg-white p-4 rounded shadow w-1/2 border">
               <div className="mb-4">
-                <label className="block font-semibold mb-1">Full Name</label>
+                <label className="block font-semibold mb-1">FirstName</label>
                 <input
                   type="text"
-                  name="name"
+                  firstname="firstname"
                   className="input input-bordered w-full"
-                  value={formData.name}
+                  value={formData.firstname}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block font-semibold mb-1">LastName</label>
+                <input
+                  type="text"
+                  lastname="lastname"
+                  className="input input-bordered w-full"
+                  value={formData.lastname}
                   onChange={handleChange}
                   required
                 />
@@ -127,18 +140,7 @@ export default function CandidateForm({ enabled }) {
                   required
                 />
               </div>
-              {/* <div className="mb-4">
-              <label className="block font-semibold mb-1">Course</label>
-              <input
-                type="text"
-                name="course"
-                className="input input-bordered w-full"
-                value={formData.course}
-                onChange={handleChange}
-                required
-              />
-            </div> */}
-
+        
               <div className="mb-4">
                 <label className="block font-semibold mb-1">Position</label>
                 <select

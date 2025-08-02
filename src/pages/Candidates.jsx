@@ -183,7 +183,7 @@ export default function Candidates() {
 
   const [loading, setLoading] = useState(false);
   const [remarks, setRemarks] = useState("");
-  const handleActionFiledCoC = async (id, name, email, newStatus, remarks) => {
+  const handleActionFiledCoC = async (id, firstname, lastname, email, newStatus, remarks) => {
     const statusActions = newStatus === "Accepted" ? "Accept" : "Reject";
 
     try {
@@ -192,7 +192,8 @@ export default function Candidates() {
         "http://localhost:3000/api/candidates/update-filed-coc",
         {
           id,
-          name,
+          firstname,
+          lastname,
           email,
           status: newStatus,
           approver_remarks: remarks,
@@ -333,7 +334,8 @@ export default function Candidates() {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Name</th>
+                  <th>FirstName</th>
+                   <th>LastName</th>
                   <th>Email</th>
                   <th>Course</th>
                   <th>Position</th>
@@ -346,7 +348,8 @@ export default function Candidates() {
                 {filteredCandidates.map((person, index) => (
                   <tr key={person.id}>
                     <th>{index + 1}</th>
-                    <td>{person.name}</td>
+                    <td>{person.firstname}</td>
+                     <td>{person.lastname}</td>
                     <td>{person.email}</td>
                     <td>{person.course}</td>
                     <td>{person.position}</td>
@@ -370,8 +373,11 @@ export default function Candidates() {
                             onClick={() =>
                               handleActionFiledCoC(
                                 person.id,
-                                person.name,
+                                person.firstname,
+                                person.lastname,
+                                // person.course,
                                 person.email,
+
                                 "Accepted",
                                 remarks
                               )
@@ -428,7 +434,9 @@ export default function Candidates() {
                       if (selectedCandidate) {
                         handleActionFiledCoC(
                           selectedCandidate.id,
-                          selectedCandidate.name,
+                          selectedCandidate.firstname,
+                           selectedCandidate.lastname,
+                          //  selectedCandidate.course,
                           selectedCandidate.email,
                           "Rejected",
                           remarks

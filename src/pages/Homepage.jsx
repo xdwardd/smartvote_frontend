@@ -7,7 +7,7 @@ import { Loaders } from "../utils/Loaders";
 import { useNavigate } from "react-router-dom";
 
 const yearLevels = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
-const courses = ["BSIT", "BSCS", "BSBA", "BSED", "BEED"];
+const courses = ["BSIT", "BSA", "BSBA", "BSED", "BEED","CJE","PSYCHOLOGY"];
 
 export default function Homepage() {
   const navigate = useNavigate();
@@ -82,7 +82,10 @@ export default function Homepage() {
           });
         }, 3000);
       } else {
-        toast.error(response.data.resmsg);
+        setTimeout(() => {
+          setLoading(false);
+          toast.error(response.data.resmsg);
+        }, 3000);
       }
     } catch (error) {
       console.error(
