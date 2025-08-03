@@ -26,6 +26,9 @@ export default function Sidebar() {
             <h2 className="text-lg font-bold leading-none text-center">
               {userData.firstname} {userData.lastname}
             </h2>
+            <p className="text-xs text-gray-500 text-center mt-2">
+              {userData.course} - {userData.year_level}
+            </p>
             <p className="text-sm text-gray-500">{userData.email}</p>
           </div>
         </div>
