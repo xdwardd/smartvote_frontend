@@ -129,7 +129,7 @@ export default function CandidateForm({ enabled }) {
   }, []);
 
   return (
-    <div className="relative">
+    <div className="relative lg:m-h-screen h-screen">
       {loading && (
         <div className="absolute inset-0 z-30  bg-transparent  flex items-center justify-center">
           <Loaders />
@@ -153,53 +153,57 @@ export default function CandidateForm({ enabled }) {
           >
             <div className="text-2xl font-bold">File Candidacy</div>
             <form className="bg-white p-4 rounded shadow w-1/2 border">
-              <div className="mb-4">
-                <label className="block font-semibold mb-1">FirstName</label>
-                <input
-                  type="text"
-                  firstname="firstname"
-                  className="input input-bordered w-full"
-                  value={formData.firstname}
-                  onChange={handleChange}
-                  readOnly
-                  required
-                />
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block font-semibold mb-1">FirstName</label>
+                  <input
+                    type="text"
+                    firstname="firstname"
+                    className="input input-bordered w-full"
+                    value={formData.firstname}
+                    onChange={handleChange}
+                    readOnly
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold mb-1">LastName</label>
+                  <input
+                    type="text"
+                    lastname="lastname"
+                    className="input input-bordered w-full"
+                    value={formData.lastname}
+                    onChange={handleChange}
+                    required
+                    readOnly
+                  />
+                </div>
               </div>
-              <div className="mb-4">
-                <label className="block font-semibold mb-1">LastName</label>
-                <input
-                  type="text"
-                  lastname="lastname"
-                  className="input input-bordered w-full"
-                  value={formData.lastname}
-                  onChange={handleChange}
-                  required
-                  readOnly
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block font-semibold mb-1">Email</label>
-                <input
-                  type="text"
-                  name="email"
-                  className="input input-bordered w-full"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  readOnly
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block font-semibold mb-1">Course</label>
-                <input
-                  type="text"
-                  name="course"
-                  className="input input-bordered w-full"
-                  value={formData.course}
-                  onChange={handleChange}
-                  required
-                  readOnly
-                />
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block font-semibold mb-1">Email</label>
+                  <input
+                    type="text"
+                    name="email"
+                    className="input input-bordered w-full"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold mb-1">Course</label>
+                  <input
+                    type="text"
+                    name="course"
+                    className="input input-bordered w-full"
+                    value={formData.course}
+                    onChange={handleChange}
+                    required
+                    readOnly
+                  />
+                </div>
               </div>
 
               <div className="mb-4">
