@@ -3,9 +3,43 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Loaders } from "../utils/Loaders";
+import { FaCheck } from "react-icons/fa";
 
 export default function CandidateForm({ enabled }) {
   const userData = JSON.parse(localStorage.getItem("userData"));
+
+  const [selected, setSelected] = useState("");
+  const [org, setOrg] = useState(null);
+  useEffect(() => {
+    if (!userData?.course) return;
+
+    switch (userData.course) {
+      case "BSIT":
+        setOrg("CCS");
+        break;
+      case "BEED":
+      case "BSED":
+        setOrg("CTE");
+        break;
+      case "BSA":
+      case "BSAT":
+      case "HM":
+        setOrg("CBA");
+        break;
+      case "PSYCHOLOGY":
+        setOrg("PSYCHOLOGY");
+        break;
+      case "CRIMINOLOGY":
+        setOrg("CJE");
+      default:
+        setOrg(null);
+    }
+  }, [userData?.course]);
+
+  const orgOptions = [
+    { id: 1, label: "SSG", value: "SSG" },
+    ...(org ? [{ id: 2, label: org, value: org }] : []),
+  ];
 
   const position = [
     { id: 1, value: "President" },
@@ -16,26 +50,40 @@ export default function CandidateForm({ enabled }) {
     { id: 6, value: "MMO" },
   ];
 
-  console.log(userData);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    firstname:userData.firstname,
-    lastname:userData.lastname,
+    firstname: userData.firstname,
+    lastname: userData.lastname,
     email: userData.email,
     course: userData.course,
     position: "",
     advocacy: "",
+    organization: "",
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      organization: selected,
+    }));
+  }, [selected]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(formData);
+
     if (formData.position == "" || formData.advocacy == "") {
       toast.error("Fill up all fields!");
+      return;
+    }
+
+    if (formData.organization === "") {
+      toast.error("Please select an organization!");
       return;
     }
     try {
@@ -80,10 +128,8 @@ export default function CandidateForm({ enabled }) {
     getFilingStatus();
   }, []);
 
-  console.log(isOpenFiling);
-
   return (
-    <div className="relative">
+    <div className="relative lg:m-h-screen h-screen">
       {loading && (
         <div className="absolute inset-0 z-30  bg-transparent  flex items-center justify-center">
           <Loaders />
@@ -107,40 +153,59 @@ export default function CandidateForm({ enabled }) {
           >
             <div className="text-2xl font-bold">File Candidacy</div>
             <form className="bg-white p-4 rounded shadow w-1/2 border">
-              <div className="mb-4">
-                <label className="block font-semibold mb-1">FirstName</label>
-                <input
-                  type="text"
-                  firstname="firstname"
-                  className="input input-bordered w-full"
-                  value={formData.firstname}
-                  onChange={handleChange}
-                  required
-                />
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block font-semibold mb-1">FirstName</label>
+                  <input
+                    type="text"
+                    firstname="firstname"
+                    className="input input-bordered w-full"
+                    value={formData.firstname}
+                    onChange={handleChange}
+                    readOnly
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold mb-1">LastName</label>
+                  <input
+                    type="text"
+                    lastname="lastname"
+                    className="input input-bordered w-full"
+                    value={formData.lastname}
+                    onChange={handleChange}
+                    required
+                    readOnly
+                  />
+                </div>
               </div>
-              <div className="mb-4">
-                <label className="block font-semibold mb-1">LastName</label>
-                <input
-                  type="text"
-                  lastname="lastname"
-                  className="input input-bordered w-full"
-                  value={formData.lastname}
-                  onChange={handleChange}
-                  required
-                />
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block font-semibold mb-1">Email</label>
+                  <input
+                    type="text"
+                    name="email"
+                    className="input input-bordered w-full"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    readOnly
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold mb-1">Course</label>
+                  <input
+                    type="text"
+                    name="course"
+                    className="input input-bordered w-full"
+                    value={formData.course}
+                    onChange={handleChange}
+                    required
+                    readOnly
+                  />
+                </div>
               </div>
-              <div className="mb-4">
-                <label className="block font-semibold mb-1">Email</label>
-                <input
-                  type="text"
-                  name="email"
-                  className="input input-bordered w-full"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-        
+
               <div className="mb-4">
                 <label className="block font-semibold mb-1">Position</label>
                 <select
@@ -159,6 +224,7 @@ export default function CandidateForm({ enabled }) {
                 </select>
               </div>
               <div className="mb-4">
+                <div className="font-semibold">Advocacy</div>
                 <textarea
                   name="advocacy"
                   value={userData.advocacy}
@@ -168,6 +234,29 @@ export default function CandidateForm({ enabled }) {
                 ></textarea>
               </div>
 
+              <div>
+                <label className="block font-semibold">Organization</label>
+                <div className="flex space-x-4 mt-2">
+                  {orgOptions.map((item) => (
+                    <div
+                      key={item.id}
+                      name="organization"
+                      className={`relative p-2 mb-4 border rounded-lg cursor-pointer w-32 text-center transition-all duration-200
+                      ${
+                        selected === item.value
+                          ? "border-blue-500 bg-blue-100"
+                          : "border-gray-300"
+                      }`}
+                      onClick={() => setSelected(item.value)}
+                    >
+                      <span className="text-lg font-medium">{item.label}</span>
+                      {selected === item.value && (
+                        <FaCheck className="absolute top-1 right-1 text-blue-600 w-4 h-4" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
               <button className="btn btn-success w-full" onClick={handleSubmit}>
                 Submit
               </button>

@@ -183,7 +183,17 @@ export default function Candidates() {
 
   const [loading, setLoading] = useState(false);
   const [remarks, setRemarks] = useState("");
-  const handleActionFiledCoC = async (id, firstname, lastname, email, newStatus, remarks) => {
+  const handleActionFiledCoC = async (
+    id,
+    firstname,
+    lastname,
+    email,
+    course,
+    position,
+    organization,
+    newStatus,
+    remarks
+  ) => {
     const statusActions = newStatus === "Accepted" ? "Accept" : "Reject";
 
     try {
@@ -195,6 +205,9 @@ export default function Candidates() {
           firstname,
           lastname,
           email,
+          course,
+          position,
+          organization,
           status: newStatus,
           approver_remarks: remarks,
           approved_by: "Admin", // Replace with actual admin ID if needed
@@ -335,10 +348,11 @@ export default function Candidates() {
                 <tr>
                   <th>#</th>
                   <th>FirstName</th>
-                   <th>LastName</th>
+                  <th>LastName</th>
                   <th>Email</th>
                   <th>Course</th>
                   <th>Position</th>
+                  <th>Organization</th>
                   <th>Date Filed</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -349,11 +363,12 @@ export default function Candidates() {
                   <tr key={person.id}>
                     <th>{index + 1}</th>
                     <td>{person.firstname}</td>
-                     <td>{person.lastname}</td>
+                    <td>{person.lastname}</td>
                     <td>{person.email}</td>
                     <td>{person.course}</td>
                     <td>{person.position}</td>
-                    <td>{person.filed_at}</td>
+                    <td>{person.organization}</td>
+                    <td>{toDatetimeLocal(person.filed_at)}</td>
                     <td
                       className={
                         person.status === "Accepted"
@@ -375,9 +390,10 @@ export default function Candidates() {
                                 person.id,
                                 person.firstname,
                                 person.lastname,
-                                // person.course,
                                 person.email,
-
+                                person.course,
+                                person.position,
+                                person.organization,
                                 "Accepted",
                                 remarks
                               )
@@ -435,9 +451,11 @@ export default function Candidates() {
                         handleActionFiledCoC(
                           selectedCandidate.id,
                           selectedCandidate.firstname,
-                           selectedCandidate.lastname,
-                          //  selectedCandidate.course,
+                          selectedCandidate.lastname,
                           selectedCandidate.email,
+                          selectedCandidate.course,
+                          selectedCandidate.position,
+                          selectedCandidate.organization,
                           "Rejected",
                           remarks
                         );

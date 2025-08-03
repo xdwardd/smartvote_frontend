@@ -17,7 +17,7 @@ export default function Sidebar() {
     navigate("/");
   };
   return (
-    <div className="w-64 bg-gradient-to-br from-blue-100 to-blue-300  p-4  flex flex-col justify-between">
+    <div className="w-64 bg-gradient-to-br from-blue-100 to-blue-300  p-4  flex flex-col justify-between h-screen">
       {/* Top Section */}
       <div>
         <div className="flex flex-col items-center gap-3 mb-6 ">
@@ -26,6 +26,9 @@ export default function Sidebar() {
             <h2 className="text-lg font-bold leading-none text-center">
               {userData.firstname} {userData.lastname}
             </h2>
+            <p className="text-xs text-gray-500 text-center mt-2">
+              {userData.course} - {userData.year_level}
+            </p>
             <p className="text-sm text-gray-500">{userData.email}</p>
           </div>
         </div>

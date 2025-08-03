@@ -7,8 +7,16 @@ import { Loaders } from "../utils/Loaders";
 import { useNavigate } from "react-router-dom";
 
 const yearLevels = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
-const courses = ["BSIT", "BSA", "BSBA", "BSED", "BEED","CJE","PSYCHOLOGY"];
-
+const courses = [
+  "BSIT",
+  "BSCS",
+  "BSBA",
+  "BSED",
+  "BEED",
+  "HM",
+  "CRIMINLOGY",
+  "PSYCHOLOGY",
+];
 export default function Homepage() {
   const navigate = useNavigate();
 
